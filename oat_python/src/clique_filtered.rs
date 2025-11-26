@@ -1361,97 +1361,25 @@ impl FactoredBoundaryMatrixVr{
     /// is of the form g(x) = f(x) + d. 
     /// 
     /// This special case allows PRH to be computed in a single decomposition step, and it's implemented here as a simple 
-    /// and efficient alternative to the methods found in `oat_rust/src/algebra/chains/realtive`.
+    /// and efficient alternative to the methods (currently under construction) found in `oat_rust/src/algebra/chains/realtive`.
     /// 
     /// # Parameters
     /// 
     /// - `delta` -> the shift or lag in the subcomplex filtration.
     /// - `return_cycle_representatives` -> a boolean determining whether cycle representatives are returned. 
     /// - `return_bounding_chains` -> a boolean determining whether bounding chains are returned. 
-    /// - `subcomplex_filtration_max` -> an optional parameter determining the maximal diameter of a subcomplex simplex. 
-    /// - `subcloud_indices` -> an optional parameter which restricts the subcomplex to be built from a subset of the initial data. 
-    /// If v[] is a list of the the raw data from which the full complex is constructed (i.e. the zero simplices of the complex), then 
-    /// the vector `subcloud_indices` should contain integer indices into the array v and be in increasing order. 
     /// 
     pub fn persistent_relative_homology_lag_filtration(
         &self,       
         py: Python<'_>,
         delta: f64, 
         return_cycle_representatives: bool, 
-        return_bounding_chains: bool,
-        // subcomplex_filtration_max: Option<f64>,
-        // subcloud_indices: Option<Vec<usize>>
+        return_bounding_chains: bool
     ) -> Py<PyAny>
     
     {
-        // // We start by building a hash map between subcomplex data and the full complex 
-        // // We'll use this to determine if a given n-simplex is in the subomplex: 
-        // // hash zero-simplices to integer indices and check if they are members of `subcloud_indices` (check if H(a) = 1 for a zero simplex a)
-        // let subcomplex_zero_simplices_hash_map = match subcloud_indices.is_some() { 
-        //     true => { 
-        //         // lists we need to build the hash map 
-        //         let subcloud_indices_unwrapped = subcloud_indices.clone().unwrap(); 
-        //         let zero_simplices = self.factored.umatch().mapping_ref().cliques_in_order(0);
-        //         // construct a hash map H from zero simplices to {0,1}, with 1 indicating that the zero simplex is in fact in the subcomplex. 
-        //         let mut map = HashMap::with_capacity(zero_simplices.clone().len());
-        //         let mut iter_subcloud_indices = subcloud_indices_unwrapped.iter();
-        //         let mut next_idx = iter_subcloud_indices.next();
-        //         // for each zero simplex in the complex (in ascending lexicographic order)
-        //         for (i, val) in zero_simplices.iter().rev().enumerate() {
-        //             // if it maps to a subcloud index
-        //             if Some(&i) == next_idx {
-        //                 map.insert(val.vertices[0].clone(), 1);
-        //                 next_idx = iter_subcloud_indices.next(); // --> increment the iterator over subcloud indices
-        //             // if it does not map to a subcloud index
-        //             } else {
-        //                 map.insert(val.vertices[0].clone(), 0);
-        //             }
-        //         }
-        //         Some(map)
-        //     }, 
-        //     false => { None }
-        // };
-        // function closueres for constructing and unpacking the barcode
         let dim_fn = |x: &SimplexFiltered<FilVal> | x.dimension() as isize;
         let fil_fn = |x: &SimplexFiltered<FilVal> | x.filtration();   
-        // let is_chain_in_subcomplex_fn = |x: &Vec<(SimplexFiltered<FilVal>, Ratio<isize>)> | -> bool { 
-        //     if subcomplex_zero_simplices_hash_map.is_some() { 
-        //         let h = subcomplex_zero_simplices_hash_map.clone().unwrap(); 
-        //         // for each (simplex, coefficient) in the chain 
-        //         // let mut total = 0; 
-        //         // let mut length_of_chain = 0; 
-        //         // let dim = x.first().unwrap().0.dimension(); 
-        //         for entry in x.iter() { 
-        //             // get vertices / zero simplices of the indexing simplex 
-        //             let zero_simplices = entry.0.vertices.clone(); 
-        //             for vertex in zero_simplices { 
-        //                 if h[&vertex] == 0 { 
-        //                     false;
-        //                 }
-        //             }
-                    
-        //             // // check if the all the vertices are in the subcomplex: use the hash map
-        //             // let sum_over_hash: usize = Iterator::sum(zero_simplices
-        //             //     .iter()
-        //             //     .map(|y| h[&y])
-        //             //     .collect_vec()
-        //             //     .iter()
-        //             // );
-        //             // // iterate loop variables
-        //             // total = total + sum_over_hash; 
-        //             // length_of_chain = length_of_chain + 1; 
-        //         }
-        //         true
-
-        //         // if total == length_of_chain * dim { 
-        //         //     true
-        //         // } else { 
-        //         //     false
-        //         // }
-        //     } else { 
-        //         true
-        //     }
-        // };
         
         // build the barcode
         let barcode = oat_rust::algebra::chains::barcode::barcode_relative_homology_lag_filtration( 
@@ -1462,7 +1390,6 @@ impl FactoredBoundaryMatrixVr{
             return_cycle_representatives, 
             return_bounding_chains,
             delta, 
-            // OrderedFloat(subcomplex_filtration_max.unwrap_or(f64::INFINITY))
         );
         
         // unpack the barcode and send to python

@@ -412,8 +412,7 @@ pub fn barcode_relative_homology<IM, KeyMinor, EntryMinor, DimFn, BirthToDeathFn
 /// - `dim_fn` returns the dimension of each index, or `KeyMinor`
 /// - `fil_fn` returns the birth of a simplex in the filtration determined by `OrderOperator`
 /// - `return_cycle_representatives` is a flag to indicate whether or not we return representatives with each class
-/// - `delta` is the lag or shift in the subcomplex filtration 
-/// - `maximum_subcomplex_diameter` is the maximal diameter at which simplices enter the subcomplex filtration 
+/// - `delta` is the lag or shift in the subcomplex filtration  
 /// 
 pub fn barcode_relative_homology_lag_filtration<I, DimFn, FilFn, Key, Entry, Mapping, RingOperator, OrderOperator>( 
     umatch: &Umatch<Mapping, RingOperator, OrderOperator, OrderOperator>, 
@@ -423,7 +422,6 @@ pub fn barcode_relative_homology_lag_filtration<I, DimFn, FilFn, Key, Entry, Map
     return_cycle_representatives: bool, 
     return_bounding_chains: bool, 
     delta: f64, 
-    // maximum_subcomplex_diameter: OrderedFloat<f64>
 ) -> Barcode<Key, Entry> 
 
     where
@@ -464,10 +462,6 @@ pub fn barcode_relative_homology_lag_filtration<I, DimFn, FilFn, Key, Entry, Map
         } else { 
             let matched_major_key = matching.keymin_to_keymaj(&key).unwrap(); // unwrap() is always safe here
             _a = fil_fn(&matched_major_key) + delta;
-            // let subcomplex_birth_of_boundary_of_chain = fil_fn(&matched_major_key) + delta;
-            // if subcomplex_birth_of_boundary_of_chain <= maximum_subcomplex_diameter { 
-            //     _a = subcomplex_birth_of_boundary_of_chain; // relative, but not absolute cycle case
-            // }
         }
         // 1b: determine when the chain enters the full complex 
         let _b = birth_of_jordan_basis_vector;
@@ -488,11 +482,6 @@ pub fn barcode_relative_homology_lag_filtration<I, DimFn, FilFn, Key, Entry, Map
         }
         // 2b: determine when the chain enters the subcomplex 
         let _b = birth_of_jordan_basis_vector + delta;
-        // let mut _b: OrderedFloat<f64> = OrderedFloat(f64::INFINITY);
-        // let subcomplex_birth_of_chain = birth_of_jordan_basis_vector + delta;
-        // if subcomplex_birth_of_chain <= maximum_subcomplex_diameter { 
-        //     _b = subcomplex_birth_of_chain;
-        // }
         if _b < _a { 
             death_column = Some(last_entry_of_jordan_basis_vector); 
         }
